@@ -4,6 +4,9 @@
 
 
 class DataGroup:
+    """
+    A group of data. Has dims and shape, but no coords.
+    """
 
     def __init__(self, items=None):
         self.items = {} if items is None else items

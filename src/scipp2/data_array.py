@@ -5,6 +5,9 @@ import scipp as sc
 
 
 class DataArray:
+    """
+    An array of data (with dims and shape) combined with coords and masks.
+    """
 
     def __init__(self, data, coords=None, masks=None, labels=None):
         self.coords = {} if coords is None else coords
