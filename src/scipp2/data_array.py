@@ -20,25 +20,43 @@ class FrozenDataGroup(DataGroup):
         super().__setitem__(name, value)
 
 
+class Coords(FrozenDataGroup):
+
+    def __init__(self, sizes, items):
+        self._aligned = {} if items is None else {name: True for name in items}
+        super().__init__(sizes, items)
+
+    def __setitem__(self, name, value):
+        self.set_aligned(name)
+        super().__setitem__(name, value)
+
+    def is_aligned(self, name) -> bool:
+        return self._aligned[name]
+
+    def set_aligned(self, name, align: bool = True):
+        # TODO check contains
+        self._aligned[name] = align
+
+
 class DataArray:
     """
     An array of data (with dims and shape) combined with coords and masks.
     """
 
-    def __init__(self, data, coords=None, masks=None, labels=None):
-        # TODO Use DataGroup subclass with frozen dims and definite shape?
-        # Allow extra dims (including dims with size=None?)?
-        self.coords = FrozenDataGroup(data.sizes, coords)
+    def __init__(self, data, coords=None, masks=None, attrs=None):
+        # coord/meta/attrs is horrible! must have flag instyead?!
+        # have coord with alignment flag, but also attrs (never aligned)?
+        # slicing and transform_coords switches flag off
+        self.coords = Coords(data.sizes, coords)
+        self.masks = FrozenDataGroup(data.sizes, masks)
+        self.attrs = FrozenDataGroup(data.sizes, attrs)
         # da.coords.is_aligned('x')
         # da.coords.align('x')
         # da.coords.unalign('x')
         # Constructor?? Adding multiple from dict??
-        self.masks = {} if masks is None else masks
         # is there a case for splitting attrs and labels if we support values
         # without dims/shape? Name clashes?
         # ... and different in HDF5
-        self.labels = {} if labels is None else labels
-        self.attrs = {}
         # TODO
         # - check that data has dims and shape
         # - check that data does not have coords
