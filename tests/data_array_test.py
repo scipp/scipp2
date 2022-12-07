@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+import pytest
 import scipp as sc
 import scipp2 as s2
 
@@ -39,3 +40,10 @@ def test_value_based_slicing_ignores_nested_coords():
     sel = da['x', sc.scalar(2, unit='m')]
     assert sc.identical(sel.data['a'], da['x', 2].data['a'])
     assert sc.identical(sel.data['a'].attrs['x'], sc.scalar(4, unit='m'))
+
+
+def test_raises_if_coord_dims_exceed_data_dims():
+    x = sc.arange('x', 4, unit='m')
+    y = sc.arange('y', 4, unit='m')
+    with pytest.raises(sc.DimensionError):
+        s2.DataArray(x, coords={'x': x, 'y': y})

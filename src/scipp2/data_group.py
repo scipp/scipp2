@@ -9,11 +9,14 @@ class DataGroup:
     """
 
     def __init__(self, items=None):
-        self.items = {} if items is None else items
+        self._items = {}
+        if items is not None:
+            for name, item in items.items():
+                self[name] = item
 
     def __repr__(self):
         r = 'DataGroup(\n'
-        for name, var in self.items.items():
+        for name, var in self.items():
             r += f'    {name}: {var.sizes}\n'
         r += ')'
         return r
@@ -21,7 +24,9 @@ class DataGroup:
     @property
     def dims(self):
         dims = ()
-        for var in self.items.values():
+        for var in self.values():
+            # TODO support values withou dims/shape?
+            # What would we do on concat?
             # Preserve insertion order
             for dim in var.dims:
                 if dim not in dims:
@@ -34,7 +39,7 @@ class DataGroup:
 
         def dim_size(dim):
             sizes = []
-            for var in self.items.values():
+            for var in self.values():
                 if dim in var.dims:
                     sizes.append(var.sizes[dim])
             sizes = set(sizes)
@@ -48,16 +53,25 @@ class DataGroup:
     def sizes(self):
         return dict(zip(self.dims, self.shape))
 
+    def keys(self):
+        yield from self._items.keys()
+
+    def values(self):
+        yield from self._items.values()
+
+    def items(self):
+        return list(zip(self.keys(), self.values()))
+
     def __getitem__(self, name):
         if isinstance(name, str):
-            return self.items[name]
+            return self._items[name]
         dim, index = name
         if isinstance(index, int) and self.sizes[dim] is None:
             raise ValueError(
                 f"Positional indexing dim {dim} not possible as the length is not "
                 "unique.")
         out = DataGroup()
-        for key, var in self.items.items():
+        for key, var in self.items():
             if dim in var.dims:
                 out[key] = var[dim, index]
             else:
@@ -65,4 +79,4 @@ class DataGroup:
         return out
 
     def __setitem__(self, name, value):
-        self.items[name] = value
+        self._items[name] = value
