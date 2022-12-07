@@ -47,9 +47,9 @@ class DataArray:
         # coord/meta/attrs is horrible! must have flag instyead?!
         # have coord with alignment flag, but also attrs (never aligned)?
         # slicing and transform_coords switches flag off
-        self.coords = Coords(data.sizes, coords)
-        self.masks = FrozenDataGroup(data.sizes, masks)
-        self.attrs = FrozenDataGroup(data.sizes, attrs)
+        self._coords = Coords(data.sizes, coords)
+        self._masks = FrozenDataGroup(data.sizes, masks)
+        self._attrs = FrozenDataGroup(data.sizes, attrs)
         # da.coords.is_aligned('x')
         # da.coords.align('x')
         # da.coords.unalign('x')
@@ -60,7 +60,29 @@ class DataArray:
         # TODO
         # - check that data has dims and shape
         # - check that data does not have coords
-        self.data = data
+        self._data = data
+
+    @property
+    def coords(self):
+        return self._coords
+
+    @property
+    def masks(self):
+        return self._masks
+
+    @property
+    def attrs(self):
+        return self._attrs
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        if value.sizes != self.sizes:
+            raise sc.DimensionError("Incompatible data size")
+        self._data = value
 
     def __repr__(self):
         r = 'DataArray(\n'
