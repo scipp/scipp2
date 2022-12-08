@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 # @author Simon Heybrock
+import operator
+from typing import Callable
 
 
 class DataGroup:
@@ -54,13 +56,16 @@ class DataGroup:
         return dict(zip(self.dims, self.shape))
 
     def keys(self):
-        yield from self._items.keys()
+        return self._items.keys()
 
     def values(self):
-        yield from self._items.values()
+        return self._items.values()
 
     def items(self):
         return list(zip(self.keys(), self.values()))
+
+    def __contains__(self, name: str) -> bool:
+        return name in self._items
 
     def __getitem__(self, name):
         if isinstance(name, str):
@@ -80,3 +85,13 @@ class DataGroup:
 
     def __setitem__(self, name, value):
         self._items[name] = value
+
+    def __add__(self, other):
+        return _data_group_binary(operator.add, self, other)
+
+    def __mul__(self, other):
+        return _data_group_binary(operator.mul, self, other)
+
+
+def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:
+    return DataGroup({key: func(dg1[key], dg2[key]) for key in dg1.keys() & dg2.keys()})
