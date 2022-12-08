@@ -41,19 +41,12 @@ class DataArray:
     """
 
     def __init__(self, data, coords=None, masks=None, attrs=None):
-        # coord/meta/attrs is horrible! must have flag instyead?!
-        # have coord with alignment flag, but also attrs (never aligned)?
-        # slicing and transform_coords switches flag off
+        # coord/meta/attrs is horrible! must have flag instead?!
+        # -> have coord with alignment flag, but also attrs (never aligned)?
+        # -> slicing and transform_coords switches flag off
         self._coords = Coords(data.sizes, coords)
         self._masks = FrozenDataGroup(data.sizes, masks)
         self._attrs = FrozenDataGroup(data.sizes, attrs)
-        # da.coords.is_aligned('x')
-        # da.coords.align('x')
-        # da.coords.unalign('x')
-        # Constructor?? Adding multiple from dict??
-        # is there a case for splitting attrs and labels if we support values
-        # without dims/shape? Name clashes?
-        # ... and different in HDF5
         # TODO
         # - check that data has dims and shape
         # - check that data does not have coords
