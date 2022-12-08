@@ -60,3 +60,13 @@ def test_coords_set_aligned():
     da = s2.DataArray(x, coords={'x': x})
     da.coords.set_aligned('x', False)
     assert not da.coords.is_aligned('x')
+
+
+def test_coords_carry_alignment():
+    x = sc.arange('x', 4, unit='m')
+    da1 = s2.DataArray(x, coords={'x': x})
+    da1.coords.set_aligned('x', False)
+    da2 = s2.DataArray(x, coords={'x': x})
+    assert da2.coords.is_aligned('x')
+    da2.coords['x'] = da1.coords['x']
+    assert not da2.coords.is_aligned('x')

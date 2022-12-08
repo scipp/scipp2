@@ -23,9 +23,10 @@ class FrozenDataGroup(DataGroup):
 class Coords(FrozenDataGroup):
 
     def __setitem__(self, name, value):
-        if not hasattr(value, '_scipp_align'):
-            setattr(value, '_scipp_align', True)
-        super().__setitem__(name, value)
+        # Shallow copy so alignment flag is internal to this Coord instance.
+        copied = value.copy(deep=False)
+        setattr(copied, '_scipp_align', getattr(value, '_scipp_align', True))
+        super().__setitem__(name, copied)
 
     def is_aligned(self, name) -> bool:
         return self[name]._scipp_align
