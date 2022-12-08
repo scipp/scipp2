@@ -22,20 +22,16 @@ class FrozenDataGroup(DataGroup):
 
 class Coords(FrozenDataGroup):
 
-    def __init__(self, sizes, items):
-        self._aligned = {} if items is None else {name: True for name in items}
-        super().__init__(sizes, items)
-
     def __setitem__(self, name, value):
-        self.set_aligned(name)
+        if not hasattr(value, '_scipp_align'):
+            setattr(value, '_scipp_align', True)
         super().__setitem__(name, value)
 
     def is_aligned(self, name) -> bool:
-        return self._aligned[name]
+        return self[name]._scipp_align
 
     def set_aligned(self, name, align: bool = True):
-        # TODO check contains
-        self._aligned[name] = align
+        self[name]._scipp_align = align
 
 
 class DataArray:

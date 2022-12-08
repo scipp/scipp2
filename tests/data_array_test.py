@@ -47,3 +47,16 @@ def test_raises_if_coord_dims_exceed_data_dims():
     y = sc.arange('y', 4, unit='m')
     with pytest.raises(sc.DimensionError):
         s2.DataArray(x, coords={'x': x, 'y': y})
+
+
+def test_coords_is_aligned():
+    x = sc.arange('x', 4, unit='m')
+    da = s2.DataArray(x, coords={'x': x})
+    assert da.coords.is_aligned('x')
+
+
+def test_coords_set_aligned():
+    x = sc.arange('x', 4, unit='m')
+    da = s2.DataArray(x, coords={'x': x})
+    da.coords.set_aligned('x', False)
+    assert not da.coords.is_aligned('x')
