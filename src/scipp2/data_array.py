@@ -41,11 +41,14 @@ class DataArray:
     """
 
     def __init__(self, data, coords=None, masks=None, attrs=None):
-        # coord/meta/attrs is horrible! must have flag instead?!
+        # Scipp's coord/meta/attrs is horrible! must have flag instead?!
         # -> have coord with alignment flag, but also attrs (never aligned)?
         # -> slicing and transform_coords switches flag off
         self._coords = Coords(data.sizes, coords)
         self._masks = FrozenDataGroup(data.sizes, masks)
+        # Should this be FrozenDataGroup? Doing away with the dim/shape handling
+        # and wrapper with scalar vars could be useful... but then we get in
+        # trouble defining behavior under concat
         self._attrs = FrozenDataGroup(data.sizes, attrs)
         # TODO
         # - check that data has dims and shape
