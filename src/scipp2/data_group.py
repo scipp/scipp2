@@ -91,8 +91,17 @@ class DataGroup:
             raise ValueError("Cannot insert item without dims and shape.")
         self._items[name] = value
 
-    def __delitem__(self, name):
+    def __delitem__(self, name: str):
         del self._items[name]
+
+    def get(self, name: str, default=None, /):
+        return self._items.get(name, default)
+
+    def pop(self, name: str, default=None, /):
+        return self._items.pop(name, default)
+
+    def clear(self):
+        self._items.clear()
 
     def __add__(self, other):
         return _data_group_binary(operator.add, self, other)
@@ -101,8 +110,11 @@ class DataGroup:
         return _data_group_binary(operator.mul, self, other)
 
     def _call_method(self, func: Callable) -> DataGroup:
-        """Call method on all values and return new DataGroup containg the results."""
+        """Call method on all values and return new DataGroup containing the results."""
         return DataGroup({key: func(value) for key, value in self.items()})
+
+    def copy(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('copy', *args, **kwargs))
 
     def bin(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('bin', *args, **kwargs))
