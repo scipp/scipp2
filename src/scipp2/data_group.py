@@ -95,10 +95,29 @@ class DataGroup:
         return _data_group_binary(operator.mul, self, other)
 
     def _call_method(self, func: Callable) -> DataGroup:
+        """Call method on all values and return new DataGroup containg the results."""
         return DataGroup({key: func(value) for key, value in self.items()})
+
+    def bin(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('bin', *args, **kwargs))
+
+    def group(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('group', *args, **kwargs))
 
     def hist(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('hist', *args, **kwargs))
+
+    def sum(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('sum', *args, **kwargs))
+
+    def mean(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('mean', *args, **kwargs))
+
+    def min(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('min', *args, **kwargs))
+
+    def max(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('max', *args, **kwargs))
 
 
 def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:
