@@ -50,6 +50,7 @@ class DataArray:
         # and wrapper with scalar vars could be useful... but then we get in
         # trouble defining behavior under concat
         self._attrs = FrozenDataGroup(data.sizes, attrs)
+        self._attrs = dict()
         # TODO
         # - check that data has dims and shape
         # - check that data does not have coords

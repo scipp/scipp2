@@ -27,8 +27,6 @@ class DataGroup:
     def dims(self):
         dims = ()
         for var in self.values():
-            # TODO support values withou dims/shape?
-            # What would we do on concat?
             # Preserve insertion order
             for dim in var.dims:
                 if dim not in dims:
@@ -84,6 +82,9 @@ class DataGroup:
         return out
 
     def __setitem__(self, name, value):
+        if not (hasattr(value, 'dims') and hasattr(value, 'shape')
+                and hasattr(value, 'sizes')):
+            raise ValueError("Cannot insert item without dims and shape.")
         self._items[name] = value
 
     def __add__(self, other):
