@@ -63,6 +63,9 @@ class DataGroup:
     def items(self):
         return list(zip(self.keys(), self.values()))
 
+    def __iter__(self):
+        yield from self._items
+
     def __contains__(self, name: str) -> bool:
         return name in self._items
 
@@ -87,6 +90,9 @@ class DataGroup:
                 and hasattr(value, 'sizes')):
             raise ValueError("Cannot insert item without dims and shape.")
         self._items[name] = value
+
+    def __delitem__(self, name):
+        del self._items[name]
 
     def __add__(self, other):
         return _data_group_binary(operator.add, self, other)
