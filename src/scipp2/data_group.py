@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 # @author Simon Heybrock
+from __future__ import annotations
 import operator
 from typing import Callable
 
@@ -92,6 +93,12 @@ class DataGroup:
 
     def __mul__(self, other):
         return _data_group_binary(operator.mul, self, other)
+
+    def _call_method(self, func: Callable) -> DataGroup:
+        return DataGroup({key: func(value) for key, value in self.items()})
+
+    def hist(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('hist', *args, **kwargs))
 
 
 def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:
