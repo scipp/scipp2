@@ -172,6 +172,10 @@ class DataGroup:
     def max(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('max', *args, **kwargs))
 
+    def transform_coords(self, *args, **kwargs):
+        return self._call_method(
+            operator.methodcaller('transform_coords', *args, **kwargs))
+
 
 def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:
     return DataGroup({key: func(dg1[key], dg2[key]) for key in dg1.keys() & dg2.keys()})
