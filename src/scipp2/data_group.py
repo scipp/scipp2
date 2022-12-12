@@ -2,8 +2,9 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 # @author Simon Heybrock
 from __future__ import annotations
+import functools
 import operator
-from typing import Callable
+from typing import Callable, Iterable
 import scipp as sc
 
 
@@ -174,3 +175,15 @@ class DataGroup:
 
 def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:
     return DataGroup({key: func(dg1[key], dg2[key]) for key in dg1.keys() & dg2.keys()})
+
+
+def _apply_to_items(func: Callable, dgs: Iterable[DataGroup], *args,
+                    **kwargs) -> DataGroup:
+    keys = functools.reduce(operator.and_, [dg.keys() for dg in dgs])
+    return DataGroup(
+        {key: func([dg[key] for dg in dgs], *args, **kwargs)
+         for key in keys})
+
+
+def concat(dgs: Iterable[DataGroup], dim):
+    return _apply_to_items(sc.concat, dgs, dim)
