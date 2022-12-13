@@ -32,37 +32,32 @@ class DataGroup(MutableMapping):
             for name, item in items.items():
                 self[name] = item
 
-    def _make_html(self):
-        out = ''
-        for name, item in self.items():
-            if isinstance(item, DataGroup):
-                html = item._make_html()
-            elif isinstance(item, (sc.Variable, sc.DataArray, sc.Dataset)):
-                html = ''  #sc.html.make_html(item)
-            else:
-                html = str(item)
-            out += f"<details style=\"padding-left:2em\"><summary>"\
-                    f"{name}: {_summarize(item)}</summary>{html}</details>"
-        return out
-
-    def _repr_html_(self):
-        from IPython.core.display import display, HTML
-        out = ''
-        out += f"<details open=\"open\"><summary>DataGroup"\
-               f"({len(self)})</summary>"
-        out += self._make_html()
-        out += "</details>"
-        return out
-
-    def __repr__(self):
-        r = 'DataGroup(\n'
-        for name, var in self.items():
-            r += f'    {name}: {_summarize(var)}\n'
-        r += ')'
-        return r
-
     def __len__(self) -> int:
         return len(self._items)
+
+    def __iter__(self):
+        yield from self._items
+
+    def __getitem__(self, name):
+        if isinstance(name, str):
+            return self._items[name]
+        if name == ():
+            return DataGroup({key: var[()] for key, var in self.items()})
+        dim, index = name
+        if isinstance(index, int) and self.sizes[dim] is None:
+            raise ValueError(
+                f"Positional indexing dim {dim} not possible as the length is not "
+                "unique.")
+        return DataGroup({
+            key: var[dim, index] if dim in _item_dims(var) else var
+            for key, var in self.items()
+        })
+
+    def __setitem__(self, name, value):
+        self._items[name] = value
+
+    def __delitem__(self, name: str):
+        del self._items[name]
 
     @property
     def dims(self):
@@ -94,29 +89,34 @@ class DataGroup(MutableMapping):
     def sizes(self):
         return dict(zip(self.dims, self.shape))
 
-    def __iter__(self):
-        yield from self._items
+    def _make_html(self):
+        out = ''
+        for name, item in self.items():
+            if isinstance(item, DataGroup):
+                html = item._make_html()
+            elif isinstance(item, (sc.Variable, sc.DataArray, sc.Dataset)):
+                html = ''  #sc.html.make_html(item)
+            else:
+                html = str(item)
+            out += f"<details style=\"padding-left:2em\"><summary>"\
+                    f"{name}: {_summarize(item)}</summary>{html}</details>"
+        return out
 
-    def __getitem__(self, name):
-        if isinstance(name, str):
-            return self._items[name]
-        if name == ():
-            return DataGroup({key: var[()] for key, var in self.items()})
-        dim, index = name
-        if isinstance(index, int) and self.sizes[dim] is None:
-            raise ValueError(
-                f"Positional indexing dim {dim} not possible as the length is not "
-                "unique.")
-        return DataGroup({
-            key: var[dim, index] if dim in _item_dims(var) else var
-            for key, var in self.items()
-        })
+    def _repr_html_(self):
+        from IPython.core.display import display, HTML
+        out = ''
+        out += f"<details open=\"open\"><summary>DataGroup"\
+               f"({len(self)})</summary>"
+        out += self._make_html()
+        out += "</details>"
+        return out
 
-    def __setitem__(self, name, value):
-        self._items[name] = value
-
-    def __delitem__(self, name: str):
-        del self._items[name]
+    def __repr__(self):
+        r = 'DataGroup(\n'
+        for name, var in self.items():
+            r += f'    {name}: {_summarize(var)}\n'
+        r += ')'
+        return r
 
     def __eq__(self, other):
         return _data_group_binary(operator.eq, self, other)
