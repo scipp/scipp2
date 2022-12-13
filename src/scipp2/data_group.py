@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 # @author Simon Heybrock
 from __future__ import annotations
+from collections.abc import MutableMapping
 import functools
 import operator
 from typing import Callable, Iterable
@@ -20,7 +21,7 @@ def _summarize(item):
     return str(item)
 
 
-class DataGroup:
+class DataGroup(MutableMapping):
     """
     A group of data. Has dims and shape, but no coords.
     """
@@ -93,20 +94,8 @@ class DataGroup:
     def sizes(self):
         return dict(zip(self.dims, self.shape))
 
-    def keys(self):
-        return self._items.keys()
-
-    def values(self):
-        return self._items.values()
-
-    def items(self):
-        return list(zip(self.keys(), self.values()))
-
     def __iter__(self):
         yield from self._items
-
-    def __contains__(self, name: str) -> bool:
-        return name in self._items
 
     def __getitem__(self, name):
         if isinstance(name, str):
@@ -128,15 +117,6 @@ class DataGroup:
 
     def __delitem__(self, name: str):
         del self._items[name]
-
-    def get(self, name: str, default=None, /):
-        return self._items.get(name, default)
-
-    def pop(self, name: str, default=None, /):
-        return self._items.pop(name, default)
-
-    def clear(self):
-        self._items.clear()
 
     def __add__(self, other):
         return _data_group_binary(operator.add, self, other)
