@@ -131,6 +131,10 @@ class DataGroup(MutableMapping):
         """Call method on all values and return new DataGroup containing the results."""
         return DataGroup({key: func(value) for key, value in self.items()})
 
+    @property
+    def bins(self):
+        return self._call_method(operator.attrgetter('bins'))
+
     def copy(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('copy', *args, **kwargs))
 
@@ -139,6 +143,9 @@ class DataGroup(MutableMapping):
 
     def group(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('group', *args, **kwargs))
+
+    def groupby(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('groupby', *args, **kwargs))
 
     def hist(self, *args, **kwargs):
         return self._call_method(operator.methodcaller('hist', *args, **kwargs))
@@ -158,6 +165,9 @@ class DataGroup(MutableMapping):
     def transform_coords(self, *args, **kwargs):
         return self._call_method(
             operator.methodcaller('transform_coords', *args, **kwargs))
+
+    def to(self, *args, **kwargs):
+        return self._call_method(operator.methodcaller('to', *args, **kwargs))
 
 
 def _data_group_binary(func: Callable, dg1: DataGroup, dg2: DataGroup) -> DataGroup:

@@ -33,3 +33,23 @@ def test_hist():
     hists = dg.hist(x=10)
     assert sc.identical(hists['a'], table[:100].hist(x=10))
     assert sc.identical(hists['b'], table[100:].hist(x=10))
+
+
+def test_bins_property():
+    table = sc.data.table_xyz(1000)
+    dg = s2.DataGroup()
+    dg['a'] = table.bin(x=10)
+    dg['b'] = table.bin(x=12)
+    result = dg.bins.sum()
+    assert sc.identical(result['a'], table.hist(x=10))
+    assert sc.identical(result['b'], table.hist(x=12))
+
+
+def test_groupby():
+    table = sc.data.table_xyz(100)
+    dg = s2.DataGroup()
+    dg['a'] = table[:60]
+    dg['b'] = table[60:]
+    result = dg.groupby('x').sum('row')
+    assert sc.identical(result['a'], table[:60].groupby('x').sum('row'))
+    assert sc.identical(result['b'], table[60:].groupby('x').sum('row'))
