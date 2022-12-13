@@ -15,6 +15,16 @@ def test_add():
     assert sc.identical(result['a'], x + x)
 
 
+def test_eq():
+    x = sc.arange('x', 4, unit='m')
+    dg1 = s2.DataGroup({'a': x})
+    dg2 = s2.DataGroup({'a': x, 'b': x})
+    result = dg1 == dg2
+    assert 'a' in result
+    assert 'b' not in result
+    assert sc.identical(result['a'], x == x)
+
+
 def test_hist():
     table = sc.data.table_xyz(1000)
     dg = s2.DataGroup()

@@ -118,6 +118,9 @@ class DataGroup(MutableMapping):
     def __delitem__(self, name: str):
         del self._items[name]
 
+    def __eq__(self, other):
+        return _data_group_binary(operator.eq, self, other)
+
     def __add__(self, other):
         return _data_group_binary(operator.add, self, other)
 
