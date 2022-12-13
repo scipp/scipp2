@@ -71,7 +71,6 @@ class DataGroup(MutableMapping):
 
     @property
     def shape(self):
-        dims = self.dims
 
         def dim_size(dim):
             sizes = []
@@ -83,7 +82,7 @@ class DataGroup(MutableMapping):
                 return next(iter(sizes))
             return None
 
-        return tuple(dim_size(dim) for dim in dims)
+        return tuple(dim_size(dim) for dim in self.dims)
 
     @property
     def sizes(self):
@@ -133,6 +132,8 @@ class DataGroup(MutableMapping):
 
     @property
     def bins(self):
+        # TODO Returning a regular DataGroup here may be wrong, since the `bins`
+        # property provides a different set of attrs and methods.
         return self._call_method(operator.attrgetter('bins'))
 
     def copy(self, *args, **kwargs):
